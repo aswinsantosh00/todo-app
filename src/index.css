@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes fadeInStrike {
+  from {
+    text-decoration-color: transparent;
+  }
+  to {
+    text-decoration-color: #666;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tearPaper {
+  0% {
+    transform: translateX(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: translateX(-5px) rotate(-2deg) scale(0.98);
+  }
+  50% {
+    transform: translateX(10px) rotate(3deg) scale(0.95);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateX(-15px) rotate(-5deg) scale(0.9);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateX(100px) rotate(8deg) scale(0.7);
+    opacity: 0;
+  }
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.animate-tearPaper {
+  animation: tearPaper 0.5s ease-in-out forwards;
+  pointer-events: none;
+}
+
+.animate-slideInFromRight {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+.animate-bounce {
+  animation: bounce 0.4s ease-in-out;
+}
+
+.animate-pulse {
+  animation: pulse 1s ease-in-out infinite;
+}

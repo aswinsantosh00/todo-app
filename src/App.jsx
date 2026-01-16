@@ -454,7 +454,9 @@ function App() {
         )}
         </div>
 
+        <div className="mt-4">
         <TaskInput onAdd={addTask} isDarkMode={isDarkMode} listType={listType} />
+        </div>
 
         <TaskList
           tasks={[...tasks[listType]].sort((a, b) => a.completed - b.completed)}

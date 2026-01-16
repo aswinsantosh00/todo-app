@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import TaskInput from './components/TaskInput';
 import TaskList from './components/TaskList';
-import ProgressBar from './components/ProgressBar';
 import Confetti from './components/Confetti';
 import Auth from './components/Auth';
 import { useAuth } from './hooks/useAuth';
@@ -31,13 +30,11 @@ function App() {
     return saved ? JSON.parse(saved) : false;
   });
   const [showConfetti, setShowConfetti] = useState(false);
-  const [deletedTask, setDeletedTask] = useState(null);
-  const [deletedTaskIndex, setDeletedTaskIndex] = useState(null);
-  const [undoTimer, setUndoTimer] = useState(null);
   const [bgColor, setBgColor] = useState(() => {
     const saved = localStorage.getItem('bgColor');
     return saved || '#f3f4f6';
   });
+  const topRef = useRef(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const { user } = useAuth();
@@ -121,24 +118,38 @@ function App() {
   // Grocery categories
   const categorizeGrocery = (itemName) => {
     const categories = {
-      'Fruits': ['apple', 'banana', 'orange', 'grape', 'mango', 'strawberry', 'watermelon', 'pineapple', 'peach', 'pear', 'cherry', 'blueberry', 'kiwi', 'lemon', 'lime'],
-      'Vegetables': ['carrot', 'potato', 'tomato', 'onion', 'lettuce', 'cucumber', 'broccoli', 'spinach', 'pepper', 'celery', 'cabbage', 'garlic', 'mushroom', 'corn', 'peas'],
-      'Dairy': ['milk', 'cheese', 'butter', 'yogurt', 'cream', 'eggs', 'egg'],
-      'Meat': ['chicken', 'beef', 'pork', 'fish', 'salmon', 'turkey', 'bacon', 'ham', 'lamb', 'shrimp'],
-      'Beverages': ['coffee', 'tea', 'juice', 'soda', 'water', 'beer', 'wine', 'milk'],
-      'Bakery': ['bread', 'bagel', 'croissant', 'muffin', 'cake', 'cookie', 'donut'],
-      'Pantry': ['rice', 'pasta', 'flour', 'sugar', 'salt', 'oil', 'sauce', 'cereal', 'beans', 'lentils'],
-      'Snacks': ['chips', 'crackers', 'nuts', 'popcorn', 'candy', 'chocolate'],
-      'Frozen': ['ice cream', 'frozen pizza', 'frozen vegetables', 'frozen fruit'],
+      'Fruits': ['apple', 'apples', 'banana', 'bananas', 'orange', 'oranges', 'grape', 'grapes', 'mango', 'mangoes', 'strawberr', 'watermelon', 'pineapple', 'peach', 'peaches', 'pear', 'pears', 'cherr', 'blueberr', 'kiwi', 'lemon', 'lemons', 'lime', 'limes', 'avocado', 'avocados', 'papaya', 'guava', 'pomegranate', 'plum', 'plums', 'melon', 'grapefruit', 'tangerine', 'mandarin', 'coconut', 'fig', 'date', 'apricot'],
+      'Vegetables': ['carrot', 'carrots', 'potato', 'potatoes', 'tomato', 'tomatoes', 'onion', 'onions', 'lettuce', 'cucumber', 'cucumbers', 'broccoli', 'spinach', 'pepper', 'peppers', 'celery', 'cabbage', 'garlic', 'mushroom', 'mushrooms', 'corn', 'peas', 'bean', 'beans', 'cauliflower', 'eggplant', 'zucchini', 'squash', 'kale', 'arugula', 'beetroot', 'radish', 'turnip', 'asparagus', 'brussels sprout', 'chard', 'leek', 'okra', 'artichoke', 'ginger', 'scallion', 'shallot'],
+      'Dairy': ['milk', 'cheese', 'butter', 'yogurt', 'yoghurt', 'cream', 'egg', 'eggs', 'curd', 'paneer', 'ghee', 'cottage cheese', 'sour cream', 'whipped cream', 'condensed milk', 'evaporated milk', 'buttermilk', 'half and half', 'heavy cream'],
+      'Meat': ['chicken', 'beef', 'pork', 'fish', 'salmon', 'turkey', 'bacon', 'ham', 'lamb', 'shrimp', 'prawn', 'prawns', 'mutton', 'duck', 'goat', 'veal', 'venison', 'sausage', 'steak', 'ground beef', 'minced', 'ribs', 'wings', 'thigh', 'breast', 'tuna', 'cod', 'tilapia', 'crab', 'lobster', 'oyster', 'clam', 'mussel', 'sardine', 'anchov'],
+      'Beverages': ['coffee', 'tea', 'juice', 'soda', 'water', 'beer', 'wine', 'cola', 'pepsi', 'coke', 'sprite', 'fanta', 'energy drink', 'smoothie', 'lemonade', 'milkshake', 'lassi', 'iced tea', 'soft drink', 'sparkling water', 'tonic', 'cordial'],
+      'Bakery': ['bread', 'bagel', 'croissant', 'muffin', 'cake', 'cookie', 'cookies', 'donut', 'doughnut', 'bun', 'buns', 'roll', 'rolls', 'baguette', 'pita', 'tortilla', 'naan', 'roti', 'chapati', 'pastry', 'pastries', 'brownie', 'cupcake', 'danish', 'pretzel', 'scone', 'biscuit', 'waffle', 'pancake'],
+      'Pantry': ['rice', 'pasta', 'flour', 'sugar', 'salt', 'oil', 'sauce', 'cereal', 'bean', 'beans', 'lentil', 'lentils', 'dal', 'oats', 'quinoa', 'couscous', 'barley', 'bulgur', 'noodles', 'macaroni', 'spaghetti', 'penne', 'honey', 'jam', 'jelly', 'peanut butter', 'nutella', 'syrup', 'maple syrup', 'vinegar', 'ketchup', 'mayo', 'mayonnaise', 'mustard', 'soy sauce', 'olive oil', 'vegetable oil', 'coconut oil', 'sesame oil', 'spice', 'herb', 'cinnamon', 'pepper', 'chili', 'curry', 'masala', 'turmeric', 'cumin', 'coriander', 'oregano', 'basil', 'thyme', 'bay leaf', 'cardamom', 'clove', 'nutmeg', 'paprika', 'cayenne', 'stock', 'broth', 'bouillon', 'can', 'canned', 'pickle', 'relish'],
+      'Snacks': ['chips', 'chip', 'crisps', 'crackers', 'nut', 'nuts', 'popcorn', 'candy', 'chocolate', 'chocolates', 'bar', 'granola', 'trail mix', 'pretzels', 'doritos', 'cheetos', 'lays', 'pringles', 'protein bar', 'energy bar', 'fruit bar', 'jerky', 'gummy', 'gummies', 'lollipop', 'mint', 'chewing gum', 'snack', 'namkeen'],
+      'Frozen': ['ice cream', 'icecream', 'frozen', 'popsicle', 'sorbet', 'gelato', 'frozen pizza', 'frozen vegetables', 'frozen fruit', 'frozen dinner', 'frozen meal', 'frozen fries', 'frozen chicken', 'frozen fish', 'frozen nuggets', 'frozen patty', 'frozen patties', 'frozen peas', 'frozen corn', 'frozen berries'],
       'Other': []
     };
 
-    const itemLower = itemName.toLowerCase();
+    const itemLower = itemName.toLowerCase().trim();
+    
+    // Check for exact word matches first (more accurate)
+    for (const [category, items] of Object.entries(categories)) {
+      for (const keyword of items) {
+        // Create regex for word boundary matching
+        const regex = new RegExp(`\\b${keyword}`, 'i');
+        if (regex.test(itemLower)) {
+          return category;
+        }
+      }
+    }
+    
+    // Fallback to partial matches
     for (const [category, items] of Object.entries(categories)) {
       if (items.some(item => itemLower.includes(item))) {
         return category;
       }
     }
+    
     return 'Other';
   };
 
@@ -158,13 +169,6 @@ function App() {
     localStorage.setItem('listType', listType);
   }, [listType]);
 
-  useEffect(() => {
-    // Cleanup undo timer on unmount
-    return () => {
-      if (undoTimer) clearTimeout(undoTimer);
-    };
-  }, [undoTimer]);
-
   const addTask = (text, subtasks = []) => {
     const newTask = {
       id: Date.now(),
@@ -178,6 +182,8 @@ function App() {
       ...tasks,
       [listType]: [newTask, ...tasks[listType]]
     });
+    // Scroll to top smoothly
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const toggleTask = (id) => {
@@ -201,43 +207,10 @@ function App() {
   };
 
   const deleteTask = (id) => {
-    const taskIndex = tasks[listType].findIndex(t => t.id === id);
-    const taskToDelete = tasks[listType].find(t => t.id === id);
-    if (taskToDelete) {
-      // Clear any existing undo timer
-      if (undoTimer) clearTimeout(undoTimer);
-      
-      // Set deleted task, index, and remove from list
-      setDeletedTask(taskToDelete);
-      setDeletedTaskIndex(taskIndex);
-      setTasks({
-        ...tasks,
-        [listType]: tasks[listType].filter(task => task.id !== id)
-      });
-      
-      // Set timer to clear deleted task after 5 seconds
-      const timer = setTimeout(() => {
-        setDeletedTask(null);
-        setDeletedTaskIndex(null);
-      }, 5000);
-      setUndoTimer(timer);
-    }
-  };
-
-  const undoDelete = () => {
-    if (deletedTask) {
-      setTasks({
-        ...tasks,
-        [listType]: [deletedTask, ...tasks[listType]]
-      });
-      setDeletedTask(null);
-      setDeletedTaskIndex(null);
-      if (undoTimer) {
-        clearTimeout(undoTimer);
-        setUndoTimer(null);
-      }
-      showToast('↩️ Task restored!', 'info');
-    }
+    setTasks({
+      ...tasks,
+      [listType]: tasks[listType].filter(task => task.id !== id)
+    });
   };
 
   const editTask = (id, newText) => {
@@ -447,14 +420,9 @@ function App() {
           </div>
         </header>
 
-        {listType === 'todo' && (
-        <div className="pb-4 mb-4 pointer-events-auto">
-          <ProgressBar completed={completedCount} total={tasks[listType].length} isDarkMode={isDarkMode} />
-        </div>
-        )}
         </div>
 
-        <div className="mt-8 sm:mt-4">
+        <div className="mt-4 sm:mt-3">
         <TaskInput onAdd={addTask} isDarkMode={isDarkMode} listType={listType} />
         </div>
 
@@ -466,9 +434,6 @@ function App() {
           onDelete={deleteTask}
           onEdit={editTask}
           isDarkMode={isDarkMode}
-          deletedTask={deletedTask}
-          deletedTaskIndex={deletedTaskIndex}
-          onUndoDelete={undoDelete}
         />
 
         <footer className={`mt-auto pt-6 pb-4 text-center transition-colors duration-300 border-t-2 ${

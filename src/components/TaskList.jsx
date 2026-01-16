@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, Fragment } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 function TaskItem({ task, onToggle, onToggleSubtask, onDelete, onEdit, isDarkMode }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -127,8 +127,8 @@ function TaskItem({ task, onToggle, onToggleSubtask, onDelete, onEdit, isDarkMod
   return (
     <li 
       ref={itemRef}
-      className={`relative flex items-center gap-3 sm:gap-3 py-4 sm:py-4 group transition-colors duration-200 overflow-visible ${
-      isDeleting ? 'animate-tearPaper' : 'animate-slideIn'
+      className={`relative flex items-center gap-3 sm:gap-3 py-2 sm:py-2 group transition-colors duration-200 overflow-visible ${
+      isDeleting ? 'animate-fadeOut' : 'animate-slideIn'
     }`}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -289,7 +289,7 @@ function TaskItem({ task, onToggle, onToggleSubtask, onDelete, onEdit, isDarkMod
   );
 }
 
-function TaskList({ tasks, listType, onToggle, onToggleSubtask, onDelete, onEdit, isDarkMode, deletedTask, deletedTaskIndex, onUndoDelete }) {
+function TaskList({ tasks, listType, onToggle, onToggleSubtask, onDelete, onEdit, isDarkMode }) {
   if (tasks.length === 0) {
     return (
       <div className="p-8 sm:p-12 text-center animate-fadeIn">
@@ -348,45 +348,18 @@ function TaskList({ tasks, listType, onToggle, onToggleSubtask, onDelete, onEdit
   }
 
   return (
-    <ul className="space-y-2" role="list">
-      {tasks.map((task, index) => (
-        <Fragment key={task.id}>
-          <TaskItem
-            task={task}
-            onToggle={onToggle}
-            onToggleSubtask={onToggleSubtask}
-            onDelete={onDelete}
-            onEdit={onEdit}
-            isDarkMode={isDarkMode}
-          />
-          {deletedTask && deletedTaskIndex === index && (
-            <li className={`border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-4 flex justify-between items-center animate-slideIn ${
-              isDarkMode ? 'bg-orange-400' : 'bg-orange-400'
-            }`}>
-              <span className="font-bold text-base">Task deleted</span>
-              <button
-                onClick={onUndoDelete}
-                className="px-4 py-2 bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] font-black text-sm transition-all duration-200"
-              >
-                UNDO
-              </button>
-            </li>
-          )}
-        </Fragment>
+    <ul className="space-y-0.5" role="list">
+      {tasks.map((task) => (
+        <TaskItem
+          key={task.id}
+          task={task}
+          onToggle={onToggle}
+          onToggleSubtask={onToggleSubtask}
+          onDelete={onDelete}
+          onEdit={onEdit}
+          isDarkMode={isDarkMode}
+        />
       ))}
-      {deletedTask && (deletedTaskIndex === null || deletedTaskIndex >= tasks.length) && (
-        <li className={`border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-4 flex justify-between items-center animate-slideIn ${
-          isDarkMode ? 'bg-orange-400' : 'bg-orange-400'
-        }`}>
-          <span className="font-bold text-base">Task deleted</span>
-          <button
-            onClick={onUndoDelete}
-            className="px-4 py-2 bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] font-black text-sm transition-all duration-200"
-          >
-            UNDO
-          </button>
-        </li>
-      )}
     </ul>
   );
 }

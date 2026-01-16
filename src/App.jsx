@@ -454,7 +454,7 @@ function App() {
         )}
         </div>
 
-        <div className="mt-4">
+        <div className="mt-8 sm:mt-4">
         <TaskInput onAdd={addTask} isDarkMode={isDarkMode} listType={listType} />
         </div>
 

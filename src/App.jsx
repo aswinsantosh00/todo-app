@@ -181,17 +181,16 @@ function App() {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const scrollHeight = document.documentElement.scrollHeight;
       const clientHeight = window.innerHeight;
+      const hasScrollableContent = scrollHeight > clientHeight + 50;
       const scrolledToBottom = scrollTop + clientHeight >= scrollHeight - 100;
       
-      // Show indicator if not at bottom and there are tasks
-      setShowScrollIndicator(!scrolledToBottom && tasks[listType].length > 3);
+      // Show indicator if user has scrolled down a bit AND there's more content below AND has enough tasks
+      setShowScrollIndicator(scrollTop > 20 && hasScrollableContent && !scrolledToBottom && tasks[listType].length > 3);
     };
-
-    // Initial check
-    handleScroll();
     
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', handleScroll);
+    handleScroll(); // Check on mount/task changes
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -327,8 +326,8 @@ function App() {
                         setListType('todo');
                         setShowListMenu(false);
                       }}
-                      className={`block w-full text-left px-6 py-3 font-black text-xl hover:bg-blue-400 transition-colors ${
-                        listType === 'todo' ? 'bg-blue-400' : ''
+                      className={`block w-full text-left px-6 py-3 font-black text-xl transition-colors ${
+                        listType === 'todo' ? 'bg-blue-400 text-black' : isDarkMode ? 'text-white hover:bg-blue-400 hover:text-black' : 'text-black hover:bg-blue-400'
                       }`}
                     >
                       TO-DO
@@ -338,8 +337,8 @@ function App() {
                         setListType('grocery');
                         setShowListMenu(false);
                       }}
-                      className={`block w-full text-left px-6 py-3 font-black text-xl hover:bg-green-400 transition-colors border-t-3 border-black ${
-                        listType === 'grocery' ? 'bg-green-400' : ''
+                      className={`block w-full text-left px-6 py-3 font-black text-xl transition-colors border-t-3 border-black ${
+                        listType === 'grocery' ? 'bg-green-400 text-black' : isDarkMode ? 'text-white hover:bg-green-400 hover:text-black' : 'text-black hover:bg-green-400'
                       }`}
                     >
                       GROCERIES

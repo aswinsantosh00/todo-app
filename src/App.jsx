@@ -3,6 +3,7 @@ import TaskInput from './components/TaskInput';
 import TaskList from './components/TaskList';
 import Confetti from './components/Confetti';
 import Auth from './components/Auth';
+import Wizard from './components/Wizard';
 import { useAuth } from './hooks/useAuth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
@@ -36,6 +37,11 @@ function App() {
   });
   const topRef = useRef(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+  const [showWizard, setShowWizard] = useState(() => {
+    const hasSeenWizard = localStorage.getItem('hasSeenWizard');
+    return !hasSeenWizard;
+  });
   const [isSyncing, setIsSyncing] = useState(false);
   const { user } = useAuth();
   
@@ -169,6 +175,30 @@ function App() {
     localStorage.setItem('listType', listType);
   }, [listType]);
 
+  // Detect if there are more items below
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = window.innerHeight;
+      const scrolledToBottom = scrollTop + clientHeight >= scrollHeight - 100;
+      
+      // Show indicator if not at bottom and there are tasks
+      setShowScrollIndicator(!scrolledToBottom && tasks[listType].length > 3);
+    };
+
+    // Initial check
+    handleScroll();
+    
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [listType, tasks]);
+
   const addTask = (text, subtasks = []) => {
     const newTask = {
       id: Date.now(),
@@ -256,6 +286,7 @@ function App() {
       style={{ backgroundColor: isDarkMode ? '#111827' : bgColor }}
     >
       {showConfetti && <Confetti onComplete={() => setShowConfetti(false)} />}
+      {showWizard && <Wizard isDarkMode={isDarkMode} onClose={() => setShowWizard(false)} />}
       
       <main className="max-w-3xl mx-auto flex-1 flex flex-col w-full">
         <div className="sticky top-0 z-40 transition-colors duration-300 pointer-events-none" style={{ backgroundColor: isDarkMode ? '#111827' : bgColor }}>
@@ -333,6 +364,16 @@ function App() {
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Auth Component */}
             <Auth isDarkMode={isDarkMode} />
+            
+            {/* Help Button */}
+            <button
+              onClick={() => setShowWizard(true)}
+              className="h-[42px] w-[42px] sm:h-[54px] sm:w-[54px] border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all duration-200 font-bold text-lg sm:text-xl flex items-center justify-center bg-purple-300"
+              aria-label="Help"
+              title="View Tutorial"
+            >
+              ?
+            </button>
             
             {/* Background Theme Picker - only in light mode */}
             {!isDarkMode && (
@@ -435,6 +476,23 @@ function App() {
           onEdit={editTask}
           isDarkMode={isDarkMode}
         />
+
+        {showScrollIndicator && (
+          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-30 pointer-events-auto flex justify-center w-full" style={{maxWidth: '100vw'}}>
+            <button
+              onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' })}
+              className={`px-4 py-2 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2 font-black text-sm rounded-md transition-all duration-200 focus:outline-none ${
+                isDarkMode ? 'bg-yellow-400' : 'bg-yellow-300'
+              }`}
+              style={{ cursor: 'pointer' }}
+            >
+              More below
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        )}
 
         <footer className={`mt-auto pt-6 pb-4 text-center transition-colors duration-300 border-t-2 ${
           isDarkMode ? 'border-gray-700' : 'border-gray-200'

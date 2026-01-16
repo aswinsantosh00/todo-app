@@ -43,6 +43,8 @@ function App() {
     return !hasSeenWizard;
   });
   const [isSyncing, setIsSyncing] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const { user } = useAuth();
   
   // Refs to prevent sync loops
@@ -242,6 +244,23 @@ function App() {
     });
   };
 
+  const clearCompleted = () => {
+    setTasks({
+      ...tasks,
+      [listType]: tasks[listType].filter(task => !task.completed)
+    });
+    setShowMenu(false);
+  };
+
+  const clearAll = () => {
+    setTasks({
+      ...tasks,
+      [listType]: []
+    });
+    setShowMenu(false);
+    setShowConfirmDialog(false);
+  };
+
   const editTask = (id, newText) => {
     setTasks({
       ...tasks,
@@ -286,6 +305,42 @@ function App() {
     >
       {showConfetti && <Confetti onComplete={() => setShowConfetti(false)} />}
       {showWizard && <Wizard isDarkMode={isDarkMode} onClose={() => setShowWizard(false)} />}
+      
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`max-w-sm w-full border-3 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 ${
+            isDarkMode ? 'bg-gray-800' : 'bg-white'
+          }`}>
+            <h3 className={`text-2xl font-black mb-4 ${
+              isDarkMode ? 'text-white' : 'text-black'
+            }`}>
+              Clear All {listType === 'todo' ? 'Tasks' : 'Items'}?
+            </h3>
+            <p className={`text-sm font-bold mb-6 ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}>
+              This will permanently delete all {tasks[listType].length} {listType === 'todo' ? 'tasks' : 'items'}. This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirmDialog(false)}
+                className={`flex-1 px-4 py-3 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all duration-200 font-black ${
+                  isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-black'
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={clearAll}
+                className="flex-1 px-4 py-3 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all duration-200 font-black bg-red-400 text-black"
+              >
+                Clear All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <main className="max-w-3xl mx-auto flex-1 flex flex-col w-full">
         <div className="sticky top-0 z-40 transition-colors duration-300 pointer-events-none" style={{ backgroundColor: isDarkMode ? '#111827' : bgColor }}>
@@ -346,13 +401,57 @@ function App() {
                   </div>
                 )}
               </div>
-              {listType === 'todo' && tasks[listType].length > 0 && (
-                <div className={`px-3 py-1 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-sm font-black transition-colors duration-300 ${
-                  isDarkMode ? 'bg-green-400' : 'bg-green-400'
-                }`}>
-                  {completedCount}/{tasks[listType].length}
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                {listType === 'todo' && tasks[listType].length > 0 && (
+                  <div className={`px-3 py-1 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-sm font-black transition-colors duration-300 ${
+                    isDarkMode ? 'bg-green-400' : 'bg-green-400'
+                  }`}>
+                    {completedCount}/{tasks[listType].length}
+                  </div>
+                )}
+                {tasks[listType].length > 0 && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowMenu(!showMenu)}
+                      className={`px-2 py-1 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all duration-200 font-black text-lg ${
+                        isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'
+                      }`}
+                      aria-label="Menu"
+                    >
+                      ⋮
+                    </button>
+                    {showMenu && (
+                      <div className={`absolute top-full right-0 mt-2 w-48 border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] z-50 ${
+                        isDarkMode ? 'bg-gray-800' : 'bg-white'
+                      }`}>
+                        {tasks[listType].some(task => task.completed) && (
+                          <button
+                            onClick={clearCompleted}
+                            className={`block w-full text-left px-4 py-3 font-bold text-sm transition-colors ${
+                              isDarkMode ? 'text-white hover:bg-yellow-400 hover:text-black' : 'text-black hover:bg-yellow-400'
+                            }`}
+                          >
+                            Clear Completed
+                          </button>
+                        )}
+                        <button
+                          onClick={() => {
+                            setShowMenu(false);
+                            setShowConfirmDialog(true);
+                          }}
+                          className={`block w-full text-left px-4 py-3 font-bold text-sm transition-colors ${
+                            tasks[listType].some(task => task.completed) ? 'border-t-3 border-black' : ''
+                          } ${
+                            isDarkMode ? 'text-white hover:bg-red-400 hover:text-black' : 'text-black hover:bg-red-400'
+                          }`}
+                        >
+                          Clear All
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
             <p className={`text-base sm:text-lg font-bold transition-colors duration-300 ${
               isDarkMode ? 'text-gray-400' : 'text-black/70'

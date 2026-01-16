@@ -295,7 +295,7 @@ function App() {
     { name: 'Soft Yellow', color: '#fef3c7' },
     { name: 'Mint Fresh', color: '#d1fae5' },
     { name: 'Sky Blue', color: '#dbeafe' },
-    { name: 'Lavender', color: '#e9d5ff' },
+    { name: 'Baby Pink', color: '#fce7f3' },
   ];
 
   return (
@@ -346,8 +346,9 @@ function App() {
         <div className="sticky top-0 z-40 transition-colors duration-300 pointer-events-none" style={{ backgroundColor: isDarkMode ? '#111827' : bgColor }}>
         <header className="mb-6 sm:mb-8 py-4 sm:py-4 pointer-events-auto">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2 flex-wrap">
+          <div className="flex-1 w-full">
+            <div className="flex items-center justify-between gap-3 mb-2 w-full">
+              <div className="flex items-center gap-3">
               <div className="relative">
                 <div 
                   onClick={() => setShowListMenu(!showListMenu)}
@@ -401,57 +402,56 @@ function App() {
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2">
-                {listType === 'todo' && tasks[listType].length > 0 && (
-                  <div className={`px-3 py-1 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-sm font-black transition-colors duration-300 ${
-                    isDarkMode ? 'bg-green-400' : 'bg-green-400'
-                  }`}>
-                    {completedCount}/{tasks[listType].length}
-                  </div>
-                )}
-                {tasks[listType].length > 0 && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowMenu(!showMenu)}
-                      className={`px-2 py-1 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all duration-200 font-black text-lg ${
-                        isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'
-                      }`}
-                      aria-label="Menu"
-                    >
-                      ⋮
-                    </button>
-                    {showMenu && (
-                      <div className={`absolute top-full right-0 mt-2 w-48 border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] z-50 ${
-                        isDarkMode ? 'bg-gray-800' : 'bg-white'
-                      }`}>
-                        {tasks[listType].some(task => task.completed) && (
-                          <button
-                            onClick={clearCompleted}
-                            className={`block w-full text-left px-4 py-3 font-bold text-sm transition-colors ${
-                              isDarkMode ? 'text-white hover:bg-yellow-400 hover:text-black' : 'text-black hover:bg-yellow-400'
-                            }`}
-                          >
-                            Clear Completed
-                          </button>
-                        )}
+              {listType === 'todo' && tasks[listType].length > 0 && (
+                <div className={`px-3 py-1 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-sm font-black transition-colors duration-300 ${
+                  isDarkMode ? 'bg-green-400' : 'bg-green-400'
+                }`}>
+                  {completedCount}/{tasks[listType].length}
+                </div>
+              )}
+              </div>
+              {tasks[listType].length > 0 && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowMenu(!showMenu)}
+                    className={`px-2 py-1 font-black text-2xl transition-colors ${
+                      isDarkMode ? 'text-white hover:text-gray-400' : 'text-black hover:text-gray-600'
+                    }`}
+                    aria-label="Menu"
+                  >
+                    ⋮
+                  </button>
+                  {showMenu && (
+                    <div className={`absolute top-full right-0 mt-2 w-48 border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] z-50 ${
+                      isDarkMode ? 'bg-gray-800' : 'bg-white'
+                    }`}>
+                      {tasks[listType].some(task => task.completed) && (
                         <button
-                          onClick={() => {
-                            setShowMenu(false);
-                            setShowConfirmDialog(true);
-                          }}
+                          onClick={clearCompleted}
                           className={`block w-full text-left px-4 py-3 font-bold text-sm transition-colors ${
-                            tasks[listType].some(task => task.completed) ? 'border-t-3 border-black' : ''
-                          } ${
-                            isDarkMode ? 'text-white hover:bg-red-400 hover:text-black' : 'text-black hover:bg-red-400'
+                            isDarkMode ? 'text-white hover:bg-yellow-400 hover:text-black' : 'text-black hover:bg-yellow-400'
                           }`}
                         >
-                          Clear All
+                          Clear Completed
                         </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                      )}
+                      <button
+                        onClick={() => {
+                          setShowMenu(false);
+                          setShowConfirmDialog(true);
+                        }}
+                        className={`block w-full text-left px-4 py-3 font-bold text-sm transition-colors ${
+                          tasks[listType].some(task => task.completed) ? 'border-t-3 border-black' : ''
+                        } ${
+                          isDarkMode ? 'text-white hover:bg-red-400 hover:text-black' : 'text-black hover:bg-red-400'
+                        }`}
+                      >
+                        Clear All
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <p className={`text-base sm:text-lg font-bold transition-colors duration-300 ${
               isDarkMode ? 'text-gray-400' : 'text-black/70'
